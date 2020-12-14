@@ -38,8 +38,6 @@ namespace ConsoleTester
                 TypeCode tc = Type.GetTypeCode(item.PropertyType);
                 string s = item.Name;
                 Console.WriteLine(tc + " " + s);
-                
-                
             }
         }
         public List<Cell> GetCells()
