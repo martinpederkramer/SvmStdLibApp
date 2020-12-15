@@ -1,78 +1,73 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Data.SqlClient;
-using System.Reflection;
 using System.Threading;
 using SvmStdLib;
+using System.Xml;
+using System.Collections.Generic;
+
 namespace ConsoleTester
 {
     class Program
     {
         static void Main(string[] args)
         {
-            string output = $"Machine: {Environment.MachineName}";
+            XmlDocument xmlDoc = new XmlDocument();
+            xmlDoc.Load(@"D:\em05.xml");
 
-            SqlAccess sqlAccess = new SqlAccess();
-            //Cell cell = new Cell { Id = 3, Name = "Cell03" };
-            //sqlAccess.Update<Cell>(cell);
-            List<Cell> cells = sqlAccess.GetCells();
+            string[] s = { "Document", "SW.Blocks.FB", "AttributeList" };
+            XmlNode blockProperties = FindChildNode(xmlDoc, s);
+            s = new string[] { "Interface", "Sections" };
+            XmlNode blockInterface = FindChildNode(blockProperties, s);
+            s = new string[] { "Document", "SW.Blocks.FB", "ObjectList", "SW.Blocks.CompileUnit", "AttributeList", "NetworkSource", "StructuredText" };
+            XmlNode compileUnit = FindChildNode(xmlDoc, s);
 
-            foreach (var item in sqlAccess.GetCells())
+            foreach (XmlNode xmlNode in blockProperties)
             {
-                item.Print();
+                GetNodes(xmlNode);
             }
 
-            Console.WriteLine(output);
-        }
-    }
 
-    public class SqlAccess : IDataAccess
-    {
-        string connectionString = @"Data Source=(LocalDb)\MSSQLLocalDB;Initial Catalog=DS;Integrated Security=True;Pooling=False";
-        public void Update<T>(T dataModel)
-        {
-            Type type = typeof(T);
-            var props = type.GetProperties();
-            foreach (var item in props)
-            {
-                TypeCode tc = Type.GetTypeCode(item.PropertyType);
-                string s = item.Name;
-                Console.WriteLine(tc + " " + s);
-            }
+            Console.WriteLine();
+            Console.WriteLine($"Machine: {Environment.MachineName}");
         }
-        public List<Cell> GetCells()
+        public static XmlNode FindChildNode(XmlNode xmlNode, string[] nodenames)
         {
-            List<Cell> output = new List<Cell>();
-            using (SqlConnection connection = new SqlConnection(connectionString))
+            XmlNode output = xmlNode;
+            foreach (string node in nodenames)
             {
-                string sql = "SELECT * FROM dbo.Cell";
-
-                SqlCommand command = new SqlCommand(sql, connection);
-                connection.Open();
-                SqlDataReader reader = command.ExecuteReader();
-                while (reader.Read())
-                {
-                    Cell cell = new Cell();
-                    cell.Id = reader.GetInt32(0);
-                    cell.Name = reader.GetString(1);
-                    output.Add(cell);
-                }
-                reader.Close();
+                if (output != null)
+                output = FindChildNode(output, node);
             }
             return output;
         }
-    }
-    public interface IDataAccess
-    {
-        void Update<T>(T dataModel);
-    }
-    public class Cell
-    {
-        public int Id { get; set; }
-        public string Name { get; set; }
-        public void Print()
+        public static XmlNode FindChildNode(XmlNode xmlNode, string nodename)
         {
-            Console.WriteLine($"{Id}: {Name}");
+            foreach (XmlNode node in xmlNode.ChildNodes)
+            {
+                if (nodename == node.Name)
+                {
+                    return node;
+                }
+            }
+            return null;
+        }
+        public static void GetNodes(XmlNode node)
+        {
+            if (node == null)
+            {
+                return;
+            }
+            Console.WriteLine($"{node.Name} : {node.Value}");
+            if (node.Attributes != null)
+            {
+                foreach (XmlAttribute attribute in node.Attributes)
+                {
+                    Console.WriteLine($"\t{attribute.Name} : {attribute.Value}");
+                }
+            }
+            foreach (XmlNode n in node.ChildNodes)
+            {
+                GetNodes(n);
+            }
         }
     }
 }
