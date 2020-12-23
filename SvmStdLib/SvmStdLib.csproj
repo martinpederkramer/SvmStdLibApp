@@ -8,4 +8,10 @@
     <PackageReference Include="System.Data.SqlClient" Version="4.8.2" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Reference Include="TwinCAT.Ads">
+      <HintPath>..\..\..\..\..\..\TwinCAT\AdsApi\.NET\v4.0.30319\TwinCAT.Ads.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
 </Project>
