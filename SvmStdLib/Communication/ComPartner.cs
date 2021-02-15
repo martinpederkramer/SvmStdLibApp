@@ -9,5 +9,6 @@ namespace SvmStdLib.Communication
     public class ComPartner
     {
         public string address { get; set; }
+        public int PortNo { get; set; }
     }
 }
