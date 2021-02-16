@@ -10,5 +10,6 @@ namespace SvmStdLib.Communication
     {
         public string address { get; set; }
         public int PortNo { get; set; }
+        public int Port2No { get; set; }
     }
 }
